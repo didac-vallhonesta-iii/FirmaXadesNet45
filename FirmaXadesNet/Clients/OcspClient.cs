@@ -24,6 +24,7 @@
 using FirmaXadesNet.Utils;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Asn1.Oiw;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
@@ -228,7 +229,7 @@ namespace FirmaXadesNet.Clients
         private OcspReq GenerateOcspRequest(X509Certificate issuerCert, BigInteger serialNumber, GeneralName requestorName,
             System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate)
         {
-            CertificateID id = new CertificateID(CertificateID.HashSha1, issuerCert, serialNumber);
+            CertificateID id = new CertificateID(OiwObjectIdentifiers.IdSha1.Id, issuerCert, serialNumber);
             return GenerateOcspRequest(id, requestorName, signCertificate);
         }
 
@@ -244,8 +245,8 @@ namespace FirmaXadesNet.Clients
                 ocspRequestGenerator.SetRequestorName(requestorName);
             }
 
-            ArrayList oids = new ArrayList();
-            Hashtable values = new Hashtable();
+            List<DerObjectIdentifier> oids = new List<DerObjectIdentifier>();
+            Dictionary<DerObjectIdentifier, X509Extension> values = new Dictionary<DerObjectIdentifier, X509Extension>();
 
             oids.Add(OcspObjectIdentifiers.PkixOcspNonce);
 

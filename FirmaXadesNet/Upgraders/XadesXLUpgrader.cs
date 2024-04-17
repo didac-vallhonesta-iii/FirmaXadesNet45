@@ -94,12 +94,12 @@ namespace FirmaXadesNet.Upgraders
             {
                 byKey = false;
 
-                return new X500DistinguishedName(dt.GetObject().GetEncoded()).Name;                
+                return new X500DistinguishedName(dt.ToAsn1Object().GetEncoded()).Name;                
             }
             else if (dt.TagNo == 2)
             {
                 Asn1TaggedObject tagger = (Asn1TaggedObject)responderId.ToAsn1Object();
-                Asn1OctetString pubInfo = (Asn1OctetString)tagger.GetObject();
+                Asn1OctetString pubInfo = (Asn1OctetString)tagger.ToAsn1Object();
                 byKey = true;
 
                 return Convert.ToBase64String(pubInfo.GetOctets());
@@ -382,12 +382,12 @@ namespace FirmaXadesNet.Upgraders
         private void AddTSACertificates(UnsignedProperties unsignedProperties, IEnumerable<OcspServer> ocspServers, IEnumerable<X509Crl> crlList, FirmaXadesNet.Crypto.DigestMethod digestMethod, bool addCertificateOcspUrl)
         {
             TimeStampToken token = new TimeStampToken(new CmsSignedData(unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0].EncapsulatedTimeStamp.PkiData));
-            IX509Store store = token.GetCertificates("Collection");
+            var store = token.GetCertificates();
 
             Org.BouncyCastle.Cms.SignerID signerId = token.SignerID;
 
             List<X509Certificate2> tsaCerts = new List<X509Certificate2>();
-            foreach (var tsaCert in store.GetMatches(null))
+            foreach (var tsaCert in store.EnumerateMatches(null))
             {
                 X509Certificate2 cert = new X509Certificate2(((Org.BouncyCastle.X509.X509Certificate)tsaCert).GetEncoded());
                 tsaCerts.Add(cert);
